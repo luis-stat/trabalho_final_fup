@@ -11,7 +11,7 @@ class MedicoRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def obter_por_id(self, medico_id: int) -> Medico | None:
+    def buscar_por_id(self, medico_id: int) -> Medico | None:
         raise NotImplementedError
 
     @abstractmethod
@@ -32,7 +32,7 @@ class PacienteRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def obter_por_id(self, paciente_id: int) -> Paciente | None:
+    def buscar_por_id(self, paciente_id: int) -> Paciente | None:
         raise NotImplementedError
 
     @abstractmethod
@@ -53,7 +53,7 @@ class ConsultaRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def obter_por_id(self, consulta_id: int) -> Consulta | None:
+    def buscar_por_id(self, consulta_id: int) -> Consulta | None:
         raise NotImplementedError
 
     @abstractmethod
