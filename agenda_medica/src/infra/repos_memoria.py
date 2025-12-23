@@ -1,83 +1,43 @@
-from dominio.modelos import Medico, Paciente, Consulta 
+from typing import Generic, TypeVar
+from dominio.modelos import Medico, Paciente, Consulta
 from dominio.repositorios import MedicoRepository, PacienteRepository, ConsultaRepository
 
-class MedicoRepositoryMemoria(MedicoRepository):
+T = TypeVar("T")
+
+class BaseRepositoryMemoria(Generic[T]):
     def __init__(self):
-        self._dados = {}
+        self._dados: dict[int, T] = {}
         self._proximo_id = 1
 
     def proximo_id(self) -> int:
         return self._proximo_id
 
-    def adicionar(self, medico: Medico) -> Medico:
-        self._dados[medico.id] = medico
-        if medico.id >= self._proximo_id:
-            self._proximo_id = medico.id + 1
-        return medico
+    def adicionar(self, obj: T) -> T:
+        if obj.id in self._dados:
+            raise ValueError(f"ID {obj.id} já existe.")
+        self._dados[obj.id] = obj
+        if obj.id >= self._proximo_id:
+            self._proximo_id = obj.id + 1
+        return obj
 
-    def buscar_por_id(self, medico_id: int) -> Medico | None:
-        return self._dados.get(medico_id)
+    def buscar_por_id(self, obj_id: int) -> T | None:
+        return self._dados.get(obj_id)
 
-    def listar(self) -> list[Medico]:
+    def listar(self) -> list[T]:
         return list(self._dados.values())
 
-    def remover(self, medico_id: int) -> bool:
-        if medico_id in self._dados:
-            del self._dados[medico_id]
-            return True
-        return False
+    def remover(self, obj_id: int) -> bool:
+        return self._dados.pop(obj_id, None) is not None
 
-class PacienteRepositoryMemoria(PacienteRepository):
-    def __init__(self):
-        self._dados = {}
-        self._proximo_id = 1
 
-    def proximo_id(self) -> int:
-        return self._proximo_id
+class MedicoRepositoryMemoria(BaseRepositoryMemoria[Medico], MedicoRepository):
+    pass
 
-    def adicionar(self, paciente: Paciente) -> Paciente:
-        self._dados[paciente.id] = paciente
-        if paciente.id >= self._proximo_id:
-            self._proximo_id = paciente.id + 1
-        return paciente
 
-    def buscar_por_id(self, paciente_id: int) -> Paciente | None:
-        return self._dados.get(paciente_id)
+class PacienteRepositoryMemoria(BaseRepositoryMemoria[Paciente], PacienteRepository):
+    pass
 
-    def listar(self) -> list[Paciente]:
-        return list(self._dados.values())
 
-    def remover(self, paciente_id: int) -> bool:
-        if paciente_id in self._dados:
-            del self._dados[paciente_id]
-            return True
-        return False
-
-class ConsultaRepositoryMemoria(ConsultaRepository):
-    def __init__(self):
-        self._dados = {}
-        self._proximo_id = 1
-
-    def proximo_id(self) -> int:
-        return self._proximo_id
-
-    def adicionar(self, consulta: Consulta) -> Consulta:
-        self._dados[consulta.id] = consulta
-        if consulta.id >= self._proximo_id:
-            self._proximo_id = consulta.id + 1
-        return consulta
-
-    def buscar_por_id(self, consulta_id: int) -> Consulta | None:
-        return self._dados.get(consulta_id)
-
-    def listar(self) -> list[Consulta]:
-        return list(self._dados.values())
-
+class ConsultaRepositoryMemoria(BaseRepositoryMemoria[Consulta], ConsultaRepository):
     def listar_por_medico(self, medico_id: int) -> list[Consulta]:
         return [c for c in self._dados.values() if c.medico_id == medico_id]
-
-    def remover(self, consulta_id: int) -> bool:
-        if consulta_id in self._dados:
-            del self._dados[consulta_id]
-            return True
-        return False
