@@ -1,69 +1,89 @@
-from abc import ABC, abstractmethod
 from .modelos import Medico, Paciente, Consulta
 
-class MedicoRepository(ABC):
-    @abstractmethod
-    def proximo_id(self) -> int:
-        raise NotImplementedError
+class MedicoRepository:
+    def __init__(self):
+        self._dados = {}
+        self._proximo_id = 1
 
-    @abstractmethod
+    def proximo_id(self) -> int:
+        return self._proximo_id
+
     def adicionar(self, medico: Medico) -> Medico:
-        raise NotImplementedError
+        if medico.id in self._dados:
+            raise ValueError(f"Médico com ID {medico.id} já existe.")
+        self._dados[medico.id] = medico
+        if medico.id >= self._proximo_id:
+            self._proximo_id = medico.id + 1
+        return medico
 
-    @abstractmethod
+
     def buscar_por_id(self, medico_id: int) -> Medico | None:
-        raise NotImplementedError
+        return self._dados.get(medico_id)
 
-    @abstractmethod
     def listar(self) -> list[Medico]:
-        raise NotImplementedError
+        return list(self._dados.values())
 
-    @abstractmethod
     def remover(self, medico_id: int) -> bool:
-        raise NotImplementedError
+        if medico_id in self._dados:
+            del self._dados[medico_id]
+            return True
+        return False
 
-class PacienteRepository(ABC):
-    @abstractmethod
+class PacienteRepository:
+    def __init__(self):
+        self._dados = {}
+        self._proximo_id = 1
+
     def proximo_id(self) -> int:
-        raise NotImplementedError
+        return self._proximo_id
 
-    @abstractmethod
     def adicionar(self, paciente: Paciente) -> Paciente:
-        raise NotImplementedError
+        if paciente.id in self._dados:
+            raise ValueError(f"Paciente com ID {paciente.id} já existe.")
+        self._dados[paciente.id] = paciente
+        if paciente.id >= self._proximo_id:
+            self._proximo_id = paciente.id + 1
+        return paciente
 
-    @abstractmethod
     def buscar_por_id(self, paciente_id: int) -> Paciente | None:
-        raise NotImplementedError
+        return self._dados.get(paciente_id)
 
-    @abstractmethod
     def listar(self) -> list[Paciente]:
-        raise NotImplementedError
+        return list(self._dados.values())
 
-    @abstractmethod
     def remover(self, paciente_id: int) -> bool:
-        raise NotImplementedError
+        if paciente_id in self._dados:
+            del self._dados[paciente_id]
+            return True
+        return False
 
-class ConsultaRepository(ABC):
-    @abstractmethod
+class ConsultaRepository:
+    def __init__(self):
+        self._dados = {}
+        self._proximo_id = 1
+
     def proximo_id(self) -> int:
-        raise NotImplementedError
+        return self._proximo_id
 
-    @abstractmethod
     def adicionar(self, consulta: Consulta) -> Consulta:
-        raise NotImplementedError
+        if consulta.id in self._dados:
+            raise ValueError(f"Consulta com ID {consulta.id} já existe.")
+        self._dados[consulta.id] = consulta
+        if consulta.id >= self._proximo_id:
+            self._proximo_id = consulta.id + 1
+        return consulta
 
-    @abstractmethod
     def buscar_por_id(self, consulta_id: int) -> Consulta | None:
-        raise NotImplementedError
+        return self._dados.get(consulta_id)
 
-    @abstractmethod
     def listar(self) -> list[Consulta]:
-        raise NotImplementedError
+        return list(self._dados.values())
 
-    @abstractmethod
     def listar_por_medico(self, medico_id: int) -> list[Consulta]:
-        raise NotImplementedError
+        return [c for c in self._dados.values() if c.medico_id == medico_id]
 
-    @abstractmethod
     def remover(self, consulta_id: int) -> bool:
-        raise NotImplementedError
+        if consulta_id in self._dados:
+            del self._dados[consulta_id]
+            return True
+        return False
