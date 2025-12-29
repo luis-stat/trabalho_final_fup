@@ -4,19 +4,17 @@ from src.dominio.repositorios import MedicoRepository, PacienteRepository, Consu
 class MedicoRepositoryMemoria(MedicoRepository):
     def __init__(self):
         self._dados = {}
+        self._proximo_id = 1
 
     def proximo_id(self) -> int:
-        id_tentativa = 1
-        while id_tentativa in self._dados:
-            id_tentativa += 1
-        return id_tentativa
+        return self._proximo_id
 
     def adicionar(self, medico: Medico) -> Medico:
-        for m in self._dados.values():
-            if m.nome.lower() == medico.nome.lower():
-                raise ValueError(f"O médico '{medico.nome}' já está cadastrado.")
-        
+        if medico.id in self._dados:
+            raise ValueError(f"Médico com ID {medico.id} já existe.")
         self._dados[medico.id] = medico
+        if medico.id >= self._proximo_id:
+            self._proximo_id = medico.id + 1
         return medico
 
     def buscar_por_id(self, medico_id: int) -> Medico | None:
@@ -34,6 +32,7 @@ class MedicoRepositoryMemoria(MedicoRepository):
 class PacienteRepositoryMemoria(PacienteRepository):
     def __init__(self):
         self._dados = {}
+        self._proximo_id = 1
 
     def proximo_id(self) -> int:
         id_tentativa = 1
@@ -42,11 +41,11 @@ class PacienteRepositoryMemoria(PacienteRepository):
         return id_tentativa
 
     def adicionar(self, paciente: Paciente) -> Paciente:
-        for p in self._dados.values():
-            if p.nome.lower() == paciente.nome.lower():
-                raise ValueError(f"O paciente '{paciente.nome}' já está cadastrado.")
-
+        if paciente.id in self._dados:
+            raise ValueError(f"Paciente com ID {paciente.id} já existe.")
         self._dados[paciente.id] = paciente
+        if paciente.id >= self._proximo_id:
+            self._proximo_id = paciente.id + 1
         return paciente
 
     def buscar_por_id(self, paciente_id: int) -> Paciente | None:
