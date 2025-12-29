@@ -28,6 +28,7 @@ class ServicoDeAgendamento:
                 raise ValueError("O médico já possui uma consulta neste horário.")
 
         novo_id = self.consulta_repo.proximo_id()
+        
         nova_consulta = Consulta(
             id=novo_id,
             medico_id=medico_id,
@@ -36,6 +37,13 @@ class ServicoDeAgendamento:
             fim=fim
         )
         return self.consulta_repo.adicionar(nova_consulta)
+
+    def remover_medico_e_consultas(self, medico_id: int) -> bool:
+        consultas = self.consulta_repo.listar_por_medico(medico_id)
+        for consulta in consultas:
+            self.consulta_repo.remover(consulta.id)
+        
+        return self.medico_repo.remover(medico_id)
 
     def _verificar_sobreposicao(self, inicio1: datetime, fim1: datetime, inicio2: datetime, fim2: datetime) -> bool:
         return max(inicio1, inicio2) < min(fim1, fim2)
