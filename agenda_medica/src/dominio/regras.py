@@ -39,10 +39,32 @@ class ServicoDeAgendamento:
         return self.consulta_repo.adicionar(nova_consulta)
 
     def remover_medico_e_consultas(self, medico_id: int) -> bool:
+        medico_remover = self.medico_repo.buscar_por_id(medico_id)
+        if not medico_remover:
+            return False
         consultas = self.consulta_repo.listar_por_medico(medico_id)
+        if not consultas:
+            return False
+        todos_medicos = self.medico_repo.listar()
+        substitutos = [
+            m for m in todos_medicos if m.especialidade == medico_remover.especialidade and m.id != medico_id
+        ]
         for consulta in consultas:
-            self.consulta_repo.remover(consulta.id)
-        
+            realocado = False
+            for substituto in substitutos:
+                conflito = False
+                consultas_substituto = self.consulta_repo.listar_por_medico(substituto.id)
+                for cs in consultas_substituto:
+                    if self._verificar_sobreposicao(consulta.inicio, consulta.fim, cs.inicio, cs.fim):
+                        conflito = True
+                        break
+            if not conflito:
+                consulta.medico_id = substituto.id
+                realocado = True
+                break
+            if not realocado:
+                self.consulta_repo.remover(consulta.id)
+
         return self.medico_repo.remover(medico_id)
 
     def _verificar_sobreposicao(self, inicio1: datetime, fim1: datetime, inicio2: datetime, fim2: datetime) -> bool:
