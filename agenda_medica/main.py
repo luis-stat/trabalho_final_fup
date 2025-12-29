@@ -109,7 +109,7 @@ class AppAgendaMedica:
         self.entry_con_duracao = ttk.Entry(frame_inputs)
         self.entry_con_duracao.grid(row=3, column=1, padx=5, pady=5, sticky='w')
 
-        btn_add = ttk.Button(frame_inputs, text="Agendar Consulta", command=self.add_consulta)
+        btn_add = ttk.Button(frame_inputs, text="AGENDAR CONSULTA", command=self.add_consulta)
         btn_add.grid(row=4, column=0, columnspan=2, pady=15)
 
         frame_lista = ttk.Frame(frame)
@@ -145,9 +145,13 @@ class AppAgendaMedica:
         selected = self.tree_medicos.selection()
         if selected:
             item = self.tree_medicos.item(selected[0])
-            id_med = item['values'][0]
-            self.fachada.remover_medico(id_med)
-            self.atualizar_medicos()
+            id_med = int(item['values'][0])
+            if self.fachada.remover_medico(id_med):
+                self.atualizar_medicos()
+                self.atualizar_consultas()
+                messagebox.showinfo("Sucesso", "Médico removido e consultas processadas.")
+            else:
+                messagebox.showerror("Erro", "Médico não encontrado ou erro na remoção.")
 
     def atualizar_medicos(self):
         for i in self.tree_medicos.get_children():
@@ -168,7 +172,8 @@ class AppAgendaMedica:
         selected = self.tree_pacientes.selection()
         if selected:
             item = self.tree_pacientes.item(selected[0])
-            id_pac = item['values'][0]
+            # AQUI TAMBÉM: int()
+            id_pac = int(item['values'][0])
             self.fachada.remover_paciente(id_pac)
             self.atualizar_pacientes()
 
