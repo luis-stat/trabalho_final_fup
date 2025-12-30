@@ -14,3 +14,13 @@ Todas as mudanças significativas neste projeto serão documentadas neste arquiv
   - `repos_memoria.py`: Implementação de repositórios em memória utilizando Generics (`BaseRepositoryMemoria[T]`), provendo operações de adicionar, buscar por ID, listar, remover e geração sequencial de IDs.
 - Adicionado `main.py` na raiz do pacote como ponto de entrada inicial da aplicação.
 - Configuração de arquivos auxiliares `.gitignore` e `.python-version`.
+
+## v0.2.0
+
+- Implementação da camada de aplicação em `src/app`:
+  - `container.py`: Configuração de injeção de dependência, instanciando os repositórios em memória e o serviço de agendamento.
+  - `fachada.py`: Criação de uma fachada (`FachadaSistema`) para simplificar a comunicação entre a interface gráfica e o domínio, tratando a conversão de tipos primitivos e chamadas ao container.
+- Desenvolvimento de interface gráfica (GUI) utilizando **Tkinter** no arquivo `main.py`, estruturada com abas para gerenciamento de médicos, pacientes e consultas, incluindo visualização em lista e formulários de entrada.
+- Evolução das regras de negócio em `src/dominio/regras.py`:
+  - Implementação do método `remover_medico_e_consultas`.
+  - Adição de lógica de realocação: ao remover um médico, o sistema busca substitutos da mesma especialidade. Se houver disponibilidade de horário, a consulta é transferida; caso contrário, é cancelada.
