@@ -12,6 +12,10 @@ class Medico:
             raise ValueError("O ID do médico deve ser um inteiro maior do que 0.")
         if not isinstance(self.nome, str) or not self.nome.strip():
             raise ValueError("O nome do médico não pode ser vazio.")
+        if any(char.isdigit() for char in self.nome):
+            raise ValueError("O nome do médico não pode conter números.")
+        if any(char.isdigit() for char in self.especialidade):
+            raise ValueError("A especialidade não pode conter números.")
         if not isinstance(self.especialidade, str) or not self.especialidade.strip():
             raise ValueError("A especialidade do médico não pode ser vazia.")
 
@@ -25,6 +29,8 @@ class Paciente:
             raise ValueError("O ID do paciente deve ser um inteiro maior do que 0.")
         if not isinstance(self.nome, str) or not self.nome.strip():
             raise ValueError("O nome do paciente não pode ser vazio.")
+        if any(char.isdigit() for char in self.nome):
+            raise ValueError("O nome do paciente não pode conter números.")
 
 @dataclass
 class Consulta:

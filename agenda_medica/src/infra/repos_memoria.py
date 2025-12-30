@@ -82,6 +82,9 @@ class ConsultaRepositoryMemoria(ConsultaRepository):
 
     def listar_por_medico(self, medico_id: int) -> list[Consulta]:
         return [c for c in self._dados.values() if c.medico_id == medico_id]
+    
+    def listar_por_paciente(self, paciente_id: int) -> list[Consulta]:
+        return [c for c in self._dados.values() if c.paciente_id == paciente_id]
 
     def remover(self, consulta_id: int) -> bool:
         if consulta_id in self._dados:

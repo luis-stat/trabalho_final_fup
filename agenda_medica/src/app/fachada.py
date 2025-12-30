@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from src.dominio.modelos import Medico, Paciente
+from src.dominio import servicos
 from .container import Container
 
 class FachadaSistema:
@@ -7,42 +7,38 @@ class FachadaSistema:
         self.container = Container()
 
     def adicionar_medico(self, nome: str, especialidade: str):
-        repo = self.container.medico_repo
-        novo_id = repo.proximo_id()
-        medico = Medico(id=novo_id, nome=nome, especialidade=especialidade)
-        return repo.adicionar(medico)
+        return servicos.cadastrar_medico(self.container.medico_repo, nome, especialidade)
 
     def listar_medicos(self):
-        return self.container.medico_repo.listar()
+        return servicos.listar_medicos(self.container.medico_repo)
 
     def remover_medico(self, medico_id: int):
-        return self.container.agendamento_servico.remover_medico_e_consultas(medico_id)
+        return servicos.remover_medico(self.container.medico_repo, self.container.consulta_repo, medico_id)
 
     def adicionar_paciente(self, nome: str):
-        repo = self.container.paciente_repo
-        novo_id = repo.proximo_id()
-        paciente = Paciente(id=novo_id, nome=nome)
-        return repo.adicionar(paciente)
+        return servicos.cadastrar_paciente(self.container.paciente_repo, nome)
 
     def listar_pacientes(self):
-        return self.container.paciente_repo.listar()
+        return servicos.listar_pacientes(self.container.paciente_repo)
 
     def remover_paciente(self, paciente_id: int):
-        return self.container.paciente_repo.remover(paciente_id)
+        return servicos.remover_paciente(self.container.paciente_repo, self.container.consulta_repo, paciente_id)
 
     def agendar_consulta(self, medico_id: int, paciente_id: int, data_hora_str: str, duracao_minutos: int):
         inicio = datetime.strptime(data_hora_str, "%d/%m/%Y %H:%M")
         fim = inicio + timedelta(minutes=duracao_minutos)
-        
-        return self.container.agendamento_servico.agendar_consulta(
-            medico_id=medico_id,
-            paciente_id=paciente_id,
-            inicio=inicio,
-            fim=fim
+        return servicos.agendar_consulta(
+            self.container.consulta_repo,
+            self.container.medico_repo,
+            self.container.paciente_repo,
+            medico_id,
+            paciente_id,
+            inicio,
+            fim
         )
 
     def listar_consultas_todas(self):
-        consultas = self.container.consulta_repo.listar()
+        consultas = servicos.listar_consultas(self.container.consulta_repo)
         resultado = []
         for c in consultas:
             medico = self.container.medico_repo.buscar_por_id(c.medico_id)
