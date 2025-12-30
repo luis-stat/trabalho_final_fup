@@ -173,8 +173,12 @@ class AppAgendaMedica:
         if selected:
             item = self.tree_pacientes.item(selected[0])
             id_pac = int(item['values'][0])
-            self.fachada.remover_paciente(id_pac)
-            self.atualizar_pacientes()
+            if self.fachada.remover_paciente(id_pac):
+                self.atualizar_pacientes()
+                self.atualizar_consultas()
+                messagebox.showinfo("Sucesso", "Paciente removido e consultas processadas.")
+            else:
+                messagebox.showerror("Erro", "Paciente não encontrado ou erro na remoção.")
 
     def atualizar_pacientes(self):
         for i in self.tree_pacientes.get_children():
