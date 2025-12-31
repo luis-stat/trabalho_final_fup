@@ -86,10 +86,15 @@ def agendar_consulta(
     if not validar_intervalo(inicio, fim):
         raise ValueError("O fim da consulta deve ser maior do que o início.")
 
-    consultas_existentes = consulta_repo.listar_por_medico(medico_id)
-    for consulta in consultas_existentes:
+    consultas_medico = consulta_repo.listar_por_medico(medico_id)
+    for consulta in consultas_medico:
         if verificar_sobreposicao(inicio, fim, consulta.inicio, consulta.fim):
             raise ValueError("O médico já possui uma consulta neste horário.")
+
+    consultas_paciente = consulta_repo.listar_por_paciente(paciente_id)
+    for consulta in consultas_paciente:
+        if verificar_sobreposicao(inicio, fim, consulta.inicio, consulta.fim):
+            raise ValueError("O paciente já possui uma consulta neste horário.")
 
     nova = Consulta(
         id=consulta_repo.proximo_id(),
