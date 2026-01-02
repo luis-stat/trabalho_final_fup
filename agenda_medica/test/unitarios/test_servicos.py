@@ -71,7 +71,7 @@ def test_impedir_agendamento_erroneo_med(repos):
     with pytest.raises(ValueError):
         servicos.agendar_consulta(cr, mr, pr, 2, p.id, inicio, fim)
 
-def test_impedir_medico_conflitante_med(repos):
+def test_impedir_conflitante_med(repos):
     mr, pr, cr = repos
     m = servicos.cadastrar_medico(mr, "Dr House", "Infectologista")
     p = servicos.cadastrar_paciente(pr, "Maria")
@@ -85,7 +85,7 @@ def test_impedir_medico_conflitante_med(repos):
     with pytest.raises(ValueError):
         servicos.agendar_consulta(cr, mr, pr, m.id, p1.id, inicio, fim)
 
-def test_impedir_medico_conflitante_pac(repos):
+def test_impedir_conflitante_pac(repos):
     mr, pr, cr = repos
     m = servicos.cadastrar_medico(mr, "Dr House", "Infectologista")
     p = servicos.cadastrar_paciente(pr, "Maria")
