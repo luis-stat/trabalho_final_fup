@@ -129,3 +129,60 @@ def test_remover_paciente_limpa_consultas(repos):
     
     assert len(cr.listar()) == 0
     assert pr.buscar_por_id(p.id) is None
+
+def test_buscar_medico_sucesso(repos):
+    mr, _, _ = repos
+    m = servicos.cadastrar_medico(mr, "Dr Strange", "Místico")
+    
+    encontrado = servicos.buscar_medico(mr, m.id)
+    assert encontrado is not None
+    assert encontrado.nome == "Dr Strange"
+    assert encontrado.id == m.id
+
+    assert servicos.buscar_medico(mr, 999) is None
+
+def test_buscar_paciente_sucesso(repos):
+    _, pr, _ = repos
+    p = servicos.cadastrar_paciente(pr, "Bruce Banner")
+    
+    encontrado = servicos.buscar_paciente(pr, p.id)
+    assert encontrado is not None
+    assert encontrado.nome == "Bruce Banner"
+    assert encontrado.id == p.id
+
+    assert servicos.buscar_paciente(pr, 999) is None
+
+def test_buscar_consultas_sucesso(repos):
+    mr, pr, cr = repos
+    m = servicos.cadastrar_medico(mr, "Dr House", "Infecto")
+    p = servicos.cadastrar_paciente(pr, "Wilson")
+    
+    inicio = datetime(2025, 1, 1, 10, 0)
+    fim = datetime(2025, 1, 1, 11, 0)
+    c = servicos.agendar_consulta(cr, mr, pr, m.id, p.id, inicio, fim)
+    
+    encontrado = servicos.buscar_consulta(cr, c.id)
+    assert encontrado is not None
+    assert encontrado.id == c.id
+    assert encontrado.medico_id == m.id
+
+    assert servicos.buscar_consulta(cr, 999) is None
+
+def test_cancelar_consultas_sucesso(repos):
+    mr, pr, cr = repos
+    m = servicos.cadastrar_medico(mr, "Dr House", "Infecto")
+    p = servicos.cadastrar_paciente(pr, "Wilson")
+    
+    inicio = datetime(2025, 1, 1, 10, 0)
+    fim = datetime(2025, 1, 1, 11, 0)
+    c = servicos.agendar_consulta(cr, mr, pr, m.id, p.id, inicio, fim)
+    
+    assert len(cr.listar()) == 1
+    
+    sucesso = servicos.cancelar_consulta(cr, c.id)
+    assert sucesso is True
+    
+    assert len(cr.listar()) == 0
+    assert servicos.buscar_consulta(cr, c.id) is None
+    
+    assert servicos.cancelar_consulta(cr, 999) is False
