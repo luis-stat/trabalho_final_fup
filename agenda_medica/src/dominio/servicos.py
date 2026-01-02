@@ -10,6 +10,9 @@ def cadastrar_medico(repo: MedicoRepository, nome: str, especialidade: str) -> M
 def listar_medicos(repo: MedicoRepository) -> list[Medico]:
     return repo.listar()
 
+def buscar_medico(repo: MedicoRepository, medico_id: int) -> Medico | None:
+    return repo.buscar_por_id(medico_id)
+
 def remover_medico(medico_repo: MedicoRepository, consulta_repo: ConsultaRepository, medico_id: int) -> bool:
     medico_remover = medico_repo.buscar_por_id(medico_id)
     if not medico_remover:
@@ -59,6 +62,9 @@ def cadastrar_paciente(repo: PacienteRepository, nome: str) -> Paciente:
 def listar_pacientes(repo: PacienteRepository) -> list[Paciente]:
     return repo.listar()
 
+def buscar_paciente(repo: PacienteRepository, paciente_id: int) -> Paciente | None:
+    return repo.buscar_por_id(paciente_id)
+
 def remover_paciente(paciente_repo: PacienteRepository, consulta_repo: ConsultaRepository, paciente_id: int) -> bool:
     if not paciente_repo.buscar_por_id(paciente_id):
         return False
@@ -104,6 +110,12 @@ def agendar_consulta(
         fim=fim
     )
     return consulta_repo.adicionar(nova)
+
+def buscar_consulta(repo: ConsultaRepository, consulta_id: int) -> Consulta | None:
+    return repo.buscar_por_id(consulta_id)
+
+def cancelar_consulta(repo: ConsultaRepository, consulta_id: int) -> bool:
+    return repo.remover(consulta_id)
 
 def listar_consultas(repo: ConsultaRepository) -> list[Consulta]:
     return repo.listar()

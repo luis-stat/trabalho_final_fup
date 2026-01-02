@@ -1,7 +1,7 @@
 import sys
 import os
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, simpledialog
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
@@ -53,8 +53,14 @@ class AppAgendaMedica:
         scrollbar.pack(side='right', fill='y')
         self.tree_medicos.pack(side='left', fill='both', expand=True)
         
-        btn_del = ttk.Button(frame, text="Remover Selecionado", command=self.del_medico)
-        btn_del.pack(pady=5)
+        frame_botoes = ttk.Frame(frame)
+        frame_botoes.pack(pady=5)
+        
+        btn_del = ttk.Button(frame_botoes, text="Remover Selecionado", command=self.del_medico)
+        btn_del.pack(side='left', padx=5)
+        
+        btn_search = ttk.Button(frame_botoes, text="Buscar por ID", command=self.buscar_medico)
+        btn_search.pack(side='left', padx=5)
 
     def _criar_aba_pacientes(self):
         frame = ttk.Frame(self.notebook)
@@ -83,8 +89,14 @@ class AppAgendaMedica:
         scrollbar.pack(side='right', fill='y')
         self.tree_pacientes.pack(side='left', fill='both', expand=True)
 
-        btn_del = ttk.Button(frame, text="Remover Selecionado", command=self.del_paciente)
-        btn_del.pack(pady=5)
+        frame_botoes = ttk.Frame(frame)
+        frame_botoes.pack(pady=5)
+
+        btn_del = ttk.Button(frame_botoes, text="Remover Selecionado", command=self.del_paciente)
+        btn_del.pack(side='left', padx=5)
+
+        btn_search = ttk.Button(frame_botoes, text="Buscar por ID", command=self.buscar_paciente)
+        btn_search.pack(side='left', padx=5)
 
     def _criar_aba_consultas(self):
         frame = ttk.Frame(self.notebook)
@@ -109,7 +121,7 @@ class AppAgendaMedica:
         self.entry_con_duracao = ttk.Entry(frame_inputs)
         self.entry_con_duracao.grid(row=3, column=1, padx=5, pady=5, sticky='w')
 
-        btn_add = ttk.Button(frame_inputs, text="Agendar consulta", command=self.add_consulta)
+        btn_add = ttk.Button(frame_inputs, text="Agendar Consulta", command=self.add_consulta)
         btn_add.grid(row=4, column=0, columnspan=2, pady=15)
 
         frame_lista = ttk.Frame(frame)
@@ -128,8 +140,17 @@ class AppAgendaMedica:
         scrollbar.pack(side='right', fill='y')
         self.tree_consultas.pack(side='left', fill='both', expand=True)
         
-        btn_refresh = ttk.Button(frame, text="Atualizar Lista", command=self.atualizar_consultas)
-        btn_refresh.pack(pady=5)
+        frame_botoes = ttk.Frame(frame)
+        frame_botoes.pack(pady=5)
+        
+        btn_refresh = ttk.Button(frame_botoes, text="Atualizar Lista", command=self.atualizar_consultas)
+        btn_refresh.pack(side='left', padx=5)
+
+        btn_cancel = ttk.Button(frame_botoes, text="Cancelar Selecionada", command=self.cancelar_consulta)
+        btn_cancel.pack(side='left', padx=5)
+
+        btn_search = ttk.Button(frame_botoes, text="Buscar por ID", command=self.buscar_consulta)
+        btn_search.pack(side='left', padx=5)
 
     def add_medico(self):
         try:
@@ -152,6 +173,15 @@ class AppAgendaMedica:
                 messagebox.showinfo("Sucesso", "Médico removido e consultas processadas.")
             else:
                 messagebox.showerror("Erro", "Médico não encontrado ou erro na remoção.")
+
+    def buscar_medico(self):
+        id_med = simpledialog.askinteger("Buscar Médico", "Digite o ID do médico:")
+        if id_med:
+            medico = self.fachada.buscar_medico(id_med)
+            if medico:
+                messagebox.showinfo("Médico Encontrado", f"ID: {medico.id}\nNome: {medico.nome}\nEspecialidade: {medico.especialidade}")
+            else:
+                messagebox.showwarning("Atenção", "Médico não encontrado.")
 
     def atualizar_medicos(self):
         for i in self.tree_medicos.get_children():
@@ -180,6 +210,15 @@ class AppAgendaMedica:
             else:
                 messagebox.showerror("Erro", "Paciente não encontrado ou erro na remoção.")
 
+    def buscar_paciente(self):
+        id_pac = simpledialog.askinteger("Buscar Paciente", "Digite o ID do paciente:")
+        if id_pac:
+            paciente = self.fachada.buscar_paciente(id_pac)
+            if paciente:
+                messagebox.showinfo("Paciente Encontrado", f"ID: {paciente.id}\nNome: {paciente.nome}")
+            else:
+                messagebox.showwarning("Atenção", "Paciente não encontrado.")
+
     def atualizar_pacientes(self):
         for i in self.tree_pacientes.get_children():
             self.tree_pacientes.delete(i)
@@ -207,6 +246,26 @@ class AppAgendaMedica:
             messagebox.showerror("Erro de Validação", str(ve))
         except Exception as e:
             messagebox.showerror("Erro Técnico", str(e))
+
+    def cancelar_consulta(self):
+        selected = self.tree_consultas.selection()
+        if selected:
+            item = self.tree_consultas.item(selected[0])
+            id_con = int(item['values'][0])
+            if self.fachada.cancelar_consulta(id_con):
+                self.atualizar_consultas()
+                messagebox.showinfo("Sucesso", "Consulta cancelada.")
+            else:
+                messagebox.showerror("Erro", "Erro ao cancelar a consulta.")
+
+    def buscar_consulta(self):
+        id_con = simpledialog.askinteger("Buscar Consulta", "Digite o ID da consulta:")
+        if id_con:
+            consulta = self.fachada.buscar_consulta(id_con)
+            if consulta:
+                messagebox.showinfo("Consulta Encontrada", f"ID: {consulta.id}\nID Médico: {consulta.medico_id}\nID Paciente: {consulta.paciente_id}\nInício: {consulta.inicio}\nFim: {consulta.fim}")
+            else:
+                messagebox.showwarning("Atenção", "Consulta não encontrada.")
 
     def atualizar_consultas(self):
         for i in self.tree_consultas.get_children():

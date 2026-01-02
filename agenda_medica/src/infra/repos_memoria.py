@@ -35,10 +35,7 @@ class PacienteRepositoryMemoria(PacienteRepository):
         self._proximo_id = 1
 
     def proximo_id(self) -> int:
-        id_tentativa = 1
-        while id_tentativa in self._dados:
-            id_tentativa += 1
-        return id_tentativa
+        return self._proximo_id
 
     def adicionar(self, paciente: Paciente) -> Paciente:
         if paciente.id in self._dados:

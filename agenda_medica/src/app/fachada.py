@@ -12,6 +12,9 @@ class FachadaSistema:
     def listar_medicos(self):
         return servicos.listar_medicos(self.container.medico_repo)
 
+    def buscar_medico(self, medico_id: int):
+        return servicos.buscar_medico(self.container.medico_repo, medico_id)
+
     def remover_medico(self, medico_id: int):
         return servicos.remover_medico(self.container.medico_repo, self.container.consulta_repo, medico_id)
 
@@ -20,6 +23,9 @@ class FachadaSistema:
 
     def listar_pacientes(self):
         return servicos.listar_pacientes(self.container.paciente_repo)
+
+    def buscar_paciente(self, paciente_id: int):
+        return servicos.buscar_paciente(self.container.paciente_repo, paciente_id)
 
     def remover_paciente(self, paciente_id: int):
         return servicos.remover_paciente(self.container.paciente_repo, self.container.consulta_repo, paciente_id)
@@ -36,6 +42,12 @@ class FachadaSistema:
             inicio,
             fim
         )
+
+    def buscar_consulta(self, consulta_id: int):
+        return servicos.buscar_consulta(self.container.consulta_repo, consulta_id)
+
+    def cancelar_consulta(self, consulta_id: int):
+        return servicos.cancelar_consulta(self.container.consulta_repo, consulta_id)
 
     def listar_consultas_todas(self):
         consultas = servicos.listar_consultas(self.container.consulta_repo)

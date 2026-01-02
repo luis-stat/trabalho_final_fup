@@ -2,6 +2,7 @@ import pytest
 from datetime import datetime, timedelta
 from src.infra.repos_memoria import MedicoRepositoryMemoria, PacienteRepositoryMemoria, ConsultaRepositoryMemoria
 from src.dominio import servicos
+from src.dominio import regras
 
 @pytest.fixture
 def repos():
@@ -45,6 +46,58 @@ def test_impedir_agendamento_conflitante(repos):
     
     with pytest.raises(ValueError):
         servicos.agendar_consulta(cr, mr, pr, m.id, p.id, inicio_conflito, fim_conflito)
+
+def test_impedir_agendamento_erroneo_pac(repos):
+    mr, pr, cr = repos
+    m = servicos.cadastrar_medico(mr, "Dr House", "Infectologista")
+    p = servicos.cadastrar_paciente(pr, "Maria")
+    
+    inicio = datetime(2025, 12, 25, 10, 0)
+    fim = datetime(2025, 12, 25, 11, 0)
+    servicos.agendar_consulta(cr, mr, pr, m.id, p.id, inicio, fim)
+    
+    with pytest.raises(ValueError):
+        servicos.agendar_consulta(cr, mr, pr, m.id, 2, inicio, fim)
+
+def test_impedir_agendamento_erroneo_med(repos):
+    mr, pr, cr = repos
+    m = servicos.cadastrar_medico(mr, "Dr House", "Infectologista")
+    p = servicos.cadastrar_paciente(pr, "Maria")
+    
+    inicio = datetime(2025, 12, 25, 10, 0)
+    fim = datetime(2025, 12, 25, 11, 0)
+    servicos.agendar_consulta(cr, mr, pr, m.id, p.id, inicio, fim)
+    
+    with pytest.raises(ValueError):
+        servicos.agendar_consulta(cr, mr, pr, 2, p.id, inicio, fim)
+
+def test_impedir_medico_conflitante_med(repos):
+    mr, pr, cr = repos
+    m = servicos.cadastrar_medico(mr, "Dr House", "Infectologista")
+    p = servicos.cadastrar_paciente(pr, "Maria")
+    p1 = servicos.cadastrar_paciente(pr, "José")
+    
+    inicio = datetime(2025, 12, 25, 10, 0)
+    fim = datetime(2025, 12, 25, 11, 0)
+    
+    servicos.agendar_consulta(cr, mr, pr, m.id, p.id, inicio, fim)
+    
+    with pytest.raises(ValueError):
+        servicos.agendar_consulta(cr, mr, pr, m.id, p1.id, inicio, fim)
+
+def test_impedir_medico_conflitante_pac(repos):
+    mr, pr, cr = repos
+    m = servicos.cadastrar_medico(mr, "Dr House", "Infectologista")
+    p = servicos.cadastrar_paciente(pr, "Maria")
+    m1 = servicos.cadastrar_medico(mr, "Dr Albert", "Combinatória")
+    
+    inicio = datetime(2025, 12, 25, 10, 0)
+    fim = datetime(2025, 12, 25, 11, 0)
+    
+    servicos.agendar_consulta(cr, mr, pr, m.id, p.id, inicio, fim)
+    
+    with pytest.raises(ValueError):
+        servicos.agendar_consulta(cr, mr, pr, m1.id, p.id, inicio, fim)
 
 def test_remover_medico_com_realocacao_automatica(repos):
     mr, pr, cr = repos
