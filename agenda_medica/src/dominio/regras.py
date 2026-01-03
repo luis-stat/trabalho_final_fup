@@ -5,3 +5,6 @@ def verificar_sobreposicao(inicio1: datetime, fim1: datetime, inicio2: datetime,
 
 def validar_intervalo(inicio: datetime, fim: datetime) -> bool:
     return inicio < fim
+
+def validar_data_futura(inicio: datetime) -> bool:
+    return inicio >= datetime.now()

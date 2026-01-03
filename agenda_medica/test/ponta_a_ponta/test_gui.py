@@ -90,7 +90,7 @@ def test_gui_agendar_consulta_fluxo_completo(app):
     
     app.entry_con_med_id.insert(0, "1")
     app.entry_con_pac_id.insert(0, "1")
-    app.entry_con_data.insert(0, "20/05/2025 14:00")
+    app.entry_con_data.insert(0, "20/05/2027 14:00")
     app.entry_con_duracao.insert(0, "60")
     
     app.add_consulta()

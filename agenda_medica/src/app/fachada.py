@@ -49,6 +49,16 @@ class FachadaSistema:
     def cancelar_consulta(self, consulta_id: int):
         return servicos.cancelar_consulta(self.container.consulta_repo, consulta_id)
 
+    def remarcar_consulta(self, consulta_id: int, novo_medico_id: int, nova_data_str: str):
+        inicio = datetime.strptime(nova_data_str, "%d/%m/%Y %H:%M")
+        return servicos.remarcar_consulta(
+            self.container.consulta_repo,
+            self.container.medico_repo,
+            consulta_id,
+            novo_medico_id,
+            inicio
+        )
+
     def listar_consultas_todas(self):
         consultas = servicos.listar_consultas(self.container.consulta_repo)
         resultado = []

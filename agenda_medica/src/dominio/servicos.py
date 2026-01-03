@@ -1,7 +1,7 @@
 from datetime import datetime
 from .modelos import Medico, Paciente, Consulta
 from .repositorios import MedicoRepository, PacienteRepository, ConsultaRepository
-from .regras import verificar_sobreposicao, validar_intervalo
+from .regras import verificar_sobreposicao, validar_intervalo, validar_data_futura
 
 def cadastrar_medico(repo: MedicoRepository, nome: str, especialidade: str) -> Medico:
     novo = Medico(id=repo.proximo_id(), nome=nome, especialidade=especialidade)
@@ -91,6 +91,8 @@ def agendar_consulta(
         raise ValueError("Paciente não encontrado.")
     if not validar_intervalo(inicio, fim):
         raise ValueError("O fim da consulta deve ser maior do que o início.")
+    if not validar_data_futura(inicio):
+        raise ValueError("Não é possível agendar consultas para datas passadas.")
 
     consultas_medico = consulta_repo.listar_por_medico(medico_id)
     for consulta in consultas_medico:
@@ -116,6 +118,46 @@ def buscar_consulta(repo: ConsultaRepository, consulta_id: int) -> Consulta | No
 
 def cancelar_consulta(repo: ConsultaRepository, consulta_id: int) -> bool:
     return repo.remover(consulta_id)
+
+def remarcar_consulta(
+    consulta_repo: ConsultaRepository,
+    medico_repo: MedicoRepository,
+    consulta_id: int,
+    novo_medico_id: int,
+    nova_inicio: datetime
+) -> Consulta:
+    consulta = consulta_repo.buscar_por_id(consulta_id)
+    if not consulta:
+        raise ValueError("Consulta não encontrada.")
+    
+    if not medico_repo.buscar_por_id(novo_medico_id):
+        raise ValueError("Novo médico não encontrado.")
+
+    duracao = consulta.fim - consulta.inicio
+    novo_fim = nova_inicio + duracao
+    
+    if not validar_intervalo(nova_inicio, novo_fim):
+            raise ValueError("Horário inválido.")
+    
+    if not validar_data_futura(nova_inicio):
+        raise ValueError("Não é possível remarcar consultas para datas passadas.")
+
+    consultas_medico = consulta_repo.listar_por_medico(novo_medico_id)
+    for c in consultas_medico:
+        if c.id != consulta_id:
+            if verificar_sobreposicao(nova_inicio, novo_fim, c.inicio, c.fim):
+                raise ValueError("O médico já possui uma consulta neste horário.")
+
+    consultas_paciente = consulta_repo.listar_por_paciente(consulta.paciente_id)
+    for c in consultas_paciente:
+        if c.id != consulta_id:
+            if verificar_sobreposicao(nova_inicio, novo_fim, c.inicio, c.fim):
+                raise ValueError("O paciente já possui uma consulta neste horário.")
+
+    consulta.medico_id = novo_medico_id
+    consulta.inicio = nova_inicio
+    consulta.fim = novo_fim
+    return consulta
 
 def listar_consultas(repo: ConsultaRepository) -> list[Consulta]:
     return repo.listar()

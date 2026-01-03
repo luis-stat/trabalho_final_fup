@@ -149,6 +149,9 @@ class AppAgendaMedica:
         btn_cancel = ttk.Button(frame_botoes, text="Cancelar Selecionada", command=self.cancelar_consulta)
         btn_cancel.pack(side='left', padx=5)
 
+        btn_reschedule = ttk.Button(frame_botoes, text="Remarcar Selecionada", command=self.remarcar_consulta)
+        btn_reschedule.pack(side='left', padx=5)
+
         btn_search = ttk.Button(frame_botoes, text="Buscar por ID", command=self.buscar_consulta)
         btn_search.pack(side='left', padx=5)
 
@@ -257,6 +260,48 @@ class AppAgendaMedica:
                 messagebox.showinfo("Sucesso", "Consulta cancelada.")
             else:
                 messagebox.showerror("Erro", "Erro ao cancelar a consulta.")
+
+    def remarcar_consulta(self):
+        selected = self.tree_consultas.selection()
+        if not selected:
+            messagebox.showwarning("Aviso", "Selecione uma consulta para remarcar.")
+            return
+
+        item = self.tree_consultas.item(selected[0])
+        id_con = int(item['values'][0])
+        
+        win = tk.Toplevel(self.root)
+        win.title("Remarcar Consulta")
+        win.geometry("400x300")
+        
+        tk.Label(win, text="Novo ID do Médico:").pack(pady=5)
+        entry_med = tk.Entry(win)
+        entry_med.pack(pady=5)
+        
+        tk.Label(win, text="Nova Data (dd/mm/aaaa HH:MM):").pack(pady=5)
+        entry_data = tk.Entry(win)
+        entry_data.pack(pady=5)
+        
+        def confirmar():
+            try:
+                novo_med_str = entry_med.get()
+                nova_data_str = entry_data.get()
+                
+                if not novo_med_str or not nova_data_str:
+                    raise ValueError("Preencha todos os campos.")
+                
+                novo_med_id = int(novo_med_str)
+                
+                self.fachada.remarcar_consulta(id_con, novo_med_id, nova_data_str)
+                self.atualizar_consultas()
+                messagebox.showinfo("Sucesso", "Consulta remarcada!")
+                win.destroy()
+            except ValueError as ve:
+                messagebox.showerror("Erro de Validação", str(ve))
+            except Exception as e:
+                messagebox.showerror("Erro", str(e))
+        
+        tk.Button(win, text="Confirmar", command=confirmar).pack(pady=15)
 
     def buscar_consulta(self):
         id_con = simpledialog.askinteger("Buscar Consulta", "Digite o ID da consulta:")

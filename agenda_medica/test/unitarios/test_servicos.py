@@ -10,22 +10,22 @@ def repos():
 
 def test_cadastrar_medico_sucesso(repos):
     mr, _, _ = repos
-    medico = servicos.cadastrar_medico(mr, "Dr House", "Infectologista")
+    medico = servicos.cadastrar_medico(mr, "Médico A", "Especialidade A")
     assert medico.id == 1
-    assert medico.nome == "Dr House"
+    assert medico.nome == "Médico A"
     assert len(mr.listar()) == 1
 
 def test_validacao_nome_medico_numeros(repos):
     mr, _, _ = repos
     with pytest.raises(ValueError):
-        servicos.cadastrar_medico(mr, "Dr House 10", "Infectologista")
+        servicos.cadastrar_medico(mr, "Médico 10", "Infectologista")
 
 def test_agendar_consulta_sucesso(repos):
     mr, pr, cr = repos
     m = servicos.cadastrar_medico(mr, "Dr House", "Infectologista")
     p = servicos.cadastrar_paciente(pr, "Maria")
     
-    inicio = datetime(2025, 12, 25, 10, 0)
+    inicio = datetime(2027, 12, 25, 10, 0)
     fim = inicio + timedelta(hours=1)
     
     consulta = servicos.agendar_consulta(cr, mr, pr, m.id, p.id, inicio, fim)
@@ -37,12 +37,12 @@ def test_impedir_agendamento_conflitante(repos):
     m = servicos.cadastrar_medico(mr, "Dr House", "Infectologista")
     p = servicos.cadastrar_paciente(pr, "Maria")
     
-    inicio = datetime(2025, 12, 25, 10, 0)
-    fim = datetime(2025, 12, 25, 11, 0)
+    inicio = datetime(2027, 12, 25, 10, 0)
+    fim = datetime(2027, 12, 25, 11, 0)
     servicos.agendar_consulta(cr, mr, pr, m.id, p.id, inicio, fim)
     
-    inicio_conflito = datetime(2025, 12, 25, 10, 30)
-    fim_conflito = datetime(2025, 12, 25, 11, 30)
+    inicio_conflito = datetime(2027, 12, 25, 10, 30)
+    fim_conflito = datetime(2027, 12, 25, 11, 30)
     
     with pytest.raises(ValueError):
         servicos.agendar_consulta(cr, mr, pr, m.id, p.id, inicio_conflito, fim_conflito)
@@ -52,8 +52,8 @@ def test_impedir_agendamento_erroneo_pac(repos):
     m = servicos.cadastrar_medico(mr, "Dr House", "Infectologista")
     p = servicos.cadastrar_paciente(pr, "Maria")
     
-    inicio = datetime(2025, 12, 25, 10, 0)
-    fim = datetime(2025, 12, 25, 11, 0)
+    inicio = datetime(2027, 12, 25, 10, 0)
+    fim = datetime(2027, 12, 25, 11, 0)
     servicos.agendar_consulta(cr, mr, pr, m.id, p.id, inicio, fim)
     
     with pytest.raises(ValueError):
@@ -64,8 +64,8 @@ def test_impedir_agendamento_erroneo_med(repos):
     m = servicos.cadastrar_medico(mr, "Dr House", "Infectologista")
     p = servicos.cadastrar_paciente(pr, "Maria")
     
-    inicio = datetime(2025, 12, 25, 10, 0)
-    fim = datetime(2025, 12, 25, 11, 0)
+    inicio = datetime(2027, 12, 25, 10, 0)
+    fim = datetime(2027, 12, 25, 11, 0)
     servicos.agendar_consulta(cr, mr, pr, m.id, p.id, inicio, fim)
     
     with pytest.raises(ValueError):
@@ -77,8 +77,8 @@ def test_impedir_conflitante_med(repos):
     p = servicos.cadastrar_paciente(pr, "Maria")
     p1 = servicos.cadastrar_paciente(pr, "José")
     
-    inicio = datetime(2025, 12, 25, 10, 0)
-    fim = datetime(2025, 12, 25, 11, 0)
+    inicio = datetime(2027, 12, 25, 10, 0)
+    fim = datetime(2027, 12, 25, 11, 0)
     
     servicos.agendar_consulta(cr, mr, pr, m.id, p.id, inicio, fim)
     
@@ -91,8 +91,8 @@ def test_impedir_conflitante_pac(repos):
     p = servicos.cadastrar_paciente(pr, "Maria")
     m1 = servicos.cadastrar_medico(mr, "Dr Albert", "Combinatória")
     
-    inicio = datetime(2025, 12, 25, 10, 0)
-    fim = datetime(2025, 12, 25, 11, 0)
+    inicio = datetime(2027, 12, 25, 10, 0)
+    fim = datetime(2027, 12, 25, 11, 0)
     
     servicos.agendar_consulta(cr, mr, pr, m.id, p.id, inicio, fim)
     
@@ -105,8 +105,8 @@ def test_remover_medico_com_realocacao_automatica(repos):
     m2 = servicos.cadastrar_medico(mr, "Dr B", "Cardio")
     p = servicos.cadastrar_paciente(pr, "Jose")
     
-    inicio = datetime(2025, 12, 25, 14, 0)
-    fim = datetime(2025, 12, 25, 15, 0)
+    inicio = datetime(2027, 12, 25, 14, 0)
+    fim = datetime(2027, 12, 25, 15, 0)
     servicos.agendar_consulta(cr, mr, pr, m1.id, p.id, inicio, fim)
     
     servicos.remover_medico(mr, cr, m1.id)
@@ -121,8 +121,8 @@ def test_remover_paciente_limpa_consultas(repos):
     m = servicos.cadastrar_medico(mr, "Dr A", "Nutricionista")
     p = servicos.cadastrar_paciente(pr, "Jose")
     
-    inicio = datetime(2025, 12, 25, 14, 0)
-    fim = datetime(2025, 12, 25, 15, 0)
+    inicio = datetime(2027, 12, 25, 14, 0)
+    fim = datetime(2027, 12, 25, 15, 0)
     servicos.agendar_consulta(cr, mr, pr, m.id, p.id, inicio, fim)
     
     servicos.remover_paciente(pr, cr, p.id)
@@ -157,8 +157,8 @@ def test_buscar_consultas_sucesso(repos):
     m = servicos.cadastrar_medico(mr, "Dr House", "Infecto")
     p = servicos.cadastrar_paciente(pr, "Wilson")
     
-    inicio = datetime(2025, 1, 1, 10, 0)
-    fim = datetime(2025, 1, 1, 11, 0)
+    inicio = datetime(2027, 1, 1, 10, 0)
+    fim = datetime(2027, 1, 1, 11, 0)
     c = servicos.agendar_consulta(cr, mr, pr, m.id, p.id, inicio, fim)
     
     encontrado = servicos.buscar_consulta(cr, c.id)
@@ -173,8 +173,8 @@ def test_cancelar_consultas_sucesso(repos):
     m = servicos.cadastrar_medico(mr, "Dr House", "Infecto")
     p = servicos.cadastrar_paciente(pr, "Wilson")
     
-    inicio = datetime(2025, 1, 1, 10, 0)
-    fim = datetime(2025, 1, 1, 11, 0)
+    inicio = datetime(2027, 1, 1, 10, 0)
+    fim = datetime(2027, 1, 1, 11, 0)
     c = servicos.agendar_consulta(cr, mr, pr, m.id, p.id, inicio, fim)
     
     assert len(cr.listar()) == 1
@@ -186,3 +186,71 @@ def test_cancelar_consultas_sucesso(repos):
     assert servicos.buscar_consulta(cr, c.id) is None
     
     assert servicos.cancelar_consulta(cr, 999) is False
+
+def test_remarcar_consulta_sucesso(repos):
+    mr, pr, cr = repos
+    m1 = servicos.cadastrar_medico(mr, "Dr House", "Infecto")
+    m2 = servicos.cadastrar_medico(mr, "Dr Wilson", "Onco")
+    p = servicos.cadastrar_paciente(pr, "Thirteen")
+    
+    inicio = datetime(2027, 5, 20, 10, 0)
+    fim = datetime(2027, 5, 20, 11, 0)
+    consulta = servicos.agendar_consulta(cr, mr, pr, m1.id, p.id, inicio, fim)
+    
+    novo_inicio = datetime(2027, 5, 21, 14, 0)
+    
+    consulta_remarcada = servicos.remarcar_consulta(cr, mr, consulta.id, m2.id, novo_inicio)
+    
+    assert consulta_remarcada.medico_id == m2.id
+    assert consulta_remarcada.inicio == novo_inicio
+    assert consulta_remarcada.fim == datetime(2027, 5, 21, 15, 0)
+
+def test_remarcar_consulta_data_passada(repos):
+    mr, pr, cr = repos
+    m = servicos.cadastrar_medico(mr, "Dr House", "Infecto")
+    p = servicos.cadastrar_paciente(pr, "Thirteen")
+    
+    inicio = datetime(2027, 5, 20, 10, 0)
+    fim = datetime(2027, 5, 20, 11, 0)
+    consulta = servicos.agendar_consulta(cr, mr, pr, m.id, p.id, inicio, fim)
+    
+    data_passada = datetime(2000, 1, 1, 10, 0)
+    
+    with pytest.raises(ValueError) as excinfo:
+        servicos.remarcar_consulta(cr, mr, consulta.id, m.id, data_passada)
+    assert "datas passadas" in str(excinfo.value)
+
+def test_remarcar_consulta_conflito_medico(repos):
+    mr, pr, cr = repos
+    m1 = servicos.cadastrar_medico(mr, "Dr House", "Infecto")
+    m2 = servicos.cadastrar_medico(mr, "Dr Wilson", "Onco")
+    p = servicos.cadastrar_paciente(pr, "Thirteen")
+    p2 = servicos.cadastrar_paciente(pr, "Foreman")
+    
+    inicio1 = datetime(2027, 6, 1, 10, 0)
+    fim1 = datetime(2027, 6, 1, 11, 0)
+    c1 = servicos.agendar_consulta(cr, mr, pr, m1.id, p.id, inicio1, fim1)
+    
+    servicos.agendar_consulta(cr, mr, pr, m2.id, p2.id, datetime(2027, 6, 2, 10, 0), datetime(2027, 6, 2, 11, 0))
+    
+    novo_inicio = datetime(2027, 6, 2, 10, 0)
+    
+    with pytest.raises(ValueError) as excinfo:
+        servicos.remarcar_consulta(cr, mr, c1.id, m2.id, novo_inicio)
+    assert "O médico já possui uma consulta" in str(excinfo.value)
+
+def test_remarcar_consulta_conflito_paciente(repos):
+    mr, pr, cr = repos
+    m1 = servicos.cadastrar_medico(mr, "Dr House", "Infecto")
+    m2 = servicos.cadastrar_medico(mr, "Dr Wilson", "Onco")
+    p = servicos.cadastrar_paciente(pr, "Thirteen")
+    
+    c1 = servicos.agendar_consulta(cr, mr, pr, m1.id, p.id, datetime(2027, 7, 1, 10, 0), datetime(2027, 7, 1, 11, 0))
+    
+    servicos.agendar_consulta(cr, mr, pr, m2.id, p.id, datetime(2027, 7, 2, 10, 0), datetime(2027, 7, 2, 11, 0))
+    
+    novo_inicio = datetime(2027, 7, 2, 10, 0)
+    
+    with pytest.raises(ValueError) as excinfo:
+        servicos.remarcar_consulta(cr, mr, c1.id, m1.id, novo_inicio)
+    assert "O paciente já possui uma consulta" in str(excinfo.value)
